@@ -1,3 +1,10 @@
+//
+//  CreateClientsTable.swift
+//  Encore-API
+//
+//  Created by Alexandra Kiss
+//
+
 import Fluent
 
 internal struct CreateClientsTable: AsyncMigration {
