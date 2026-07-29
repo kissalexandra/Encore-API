@@ -8,14 +8,14 @@
 import Fluent
 import Vapor
 
-final internal class Client: Model, @unchecked Sendable {
-    static internal let schema: String = "clients"
+final internal class Artwork: Model, @unchecked Sendable {
+    static internal let schema: String = "artworks"
 
     @ID(key: .id)
     internal var id: UUID?
 
-    @Field(key: "token_hash")
-    internal var tokenHash: String
+    @Field(key: "file_name")
+    internal var fileName: String
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date

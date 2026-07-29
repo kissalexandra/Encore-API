@@ -1,3 +1,10 @@
+//
+//  configure.swift
+//  Encore-API
+//
+//  Created by Alexandra Kiss
+//
+
 import Fluent
 import FluentPostgresDriver
 import Vapor
@@ -13,6 +20,7 @@ internal func configure(_ app: Application) async throws {
     ), as: .psql)
 
     app.migrations.add(CreateClientsTable())
+    app.migrations.add(CreateArtworksTable())
 
     try routes(app)
 }

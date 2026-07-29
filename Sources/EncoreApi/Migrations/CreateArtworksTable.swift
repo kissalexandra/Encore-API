@@ -1,5 +1,5 @@
 //
-//  CreateClientsTable.swift
+//  CreateArtworksTable.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
@@ -7,17 +7,17 @@
 
 import Fluent
 
-internal struct CreateClientsTable: AsyncMigration {
+internal struct CreateArtworksTable: AsyncMigration {
     internal func prepare(on database: any Database) async throws {
-        try await database.schema(Client.schema)
+        try await database.schema(Artwork.schema)
             .id()
-            .field("token_hash", .string, .required)
+            .field("file_name", .string, .required)
             .field("expiration_date", .datetime, .required)
-            .unique(on: "token_hash")
+            .unique(on: "file_name")
             .create()
     }
 
     internal func revert(on database: any Database) async throws {
-        try await database.schema(Client.schema).delete()
+        try await database.schema(Artwork.schema).delete()
     }
 }

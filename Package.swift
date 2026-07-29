@@ -1,10 +1,11 @@
 // swift-tools-version: 5.8
+
 import PackageDescription
 
 let package: Package = Package(
     name: "EncoreApi",
     platforms: [
-       .macOS(.v10_15)
+       .macOS(.v12)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "4.121.4")),
