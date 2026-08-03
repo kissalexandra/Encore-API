@@ -5,7 +5,7 @@ import PackageDescription
 let package: Package = Package(
     name: "EncoreApi",
     platforms: [
-       .macOS(.v12)
+       .macOS(.v10_15)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "4.121.4")),

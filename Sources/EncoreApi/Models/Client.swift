@@ -19,8 +19,4 @@ internal final class Client: Model, @unchecked Sendable {
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date
-
-    init() {
-       self.expirationDate = .now + .months(3)
-    }
 }

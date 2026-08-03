@@ -21,11 +21,21 @@ internal struct ClientController: RouteCollection {
     }
 
     internal func register(request: Request) async throws -> Response {
+        guard !AppConfiguration.isClientRegistrationDisabled else {
+            throw Abort(.serviceUnavailable, reason: "Client registration is disabled.")
+        }
+
+        if let secret: String = AppConfiguration.registrationSecret {
+            guard request.headers.bearerAuthorization?.token == secret else {
+                throw Abort(.unauthorized, reason: "Invalid or missing registration secret.")
+            }
+        }
+
         let token: String = ClientTokenGenerator.generate()
 
         let client: Client = .init()
         client.tokenHash = ClientTokenGenerator.hash(token)
-        client.expirationDate = .now + .months(3)
+        client.expirationDate = Date(timeIntervalSinceNow: TimeInterval(AppConfiguration.clientTokenLifetimeDays * 86_400))
 
         try await client.save(on: request.db)
 

@@ -20,6 +20,10 @@ internal struct DiscordController: RouteCollection {
     }
 
     internal func addApplication(request: Request) async throws -> Response {
+        guard !AppConfiguration.isApplicationCreationDisabled else {
+            throw Abort(.serviceUnavailable, reason: "Application creation is disabled.")
+        }
+
         let application: DiscordApplication = try request.content.decode(DiscordApplication.self)
         try await application.save(on: request.db)
         return .init(status: .created)
