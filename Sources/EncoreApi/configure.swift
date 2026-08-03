@@ -10,6 +10,14 @@ import FluentPostgresDriver
 import Vapor
 
 internal func configure(_ app: Application) async throws {
+    let decoder: JSONDecoder = .init()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
+
+    let encoder: JSONEncoder = .init()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    ContentConfiguration.global.use(encoder: encoder, for: .json)
+
     app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
         hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",
         port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
