@@ -21,6 +21,7 @@ internal func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateClientsTable())
     app.migrations.add(CreateArtworksTable())
+    app.migrations.add(CreateDiscordApplicationsTable())
 
     try routes(app)
 }
