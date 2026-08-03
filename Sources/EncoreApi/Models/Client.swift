@@ -8,8 +8,8 @@
 import Fluent
 import Vapor
 
-final internal class Client: Model, @unchecked Sendable {
-    static internal let schema: String = "clients"
+internal final class Client: Model, @unchecked Sendable {
+    internal static let schema: String = "clients"
 
     @ID(key: .id)
     internal var id: UUID?
@@ -19,4 +19,8 @@ final internal class Client: Model, @unchecked Sendable {
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date
+
+    init() {
+       self.expirationDate = .now + .months(3)
+    }
 }
