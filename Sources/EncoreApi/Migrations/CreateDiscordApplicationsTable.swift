@@ -12,6 +12,7 @@ internal struct CreateDiscordApplicationsTable: AsyncMigration {
         try await database.schema(DiscordApplication.schema)
             .id()
             .field("application_identifier", .string, .required)
+            .unique(on: "application_identifier")
             .create()
     }
 
