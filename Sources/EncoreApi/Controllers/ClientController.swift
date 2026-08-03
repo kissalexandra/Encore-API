@@ -17,10 +17,10 @@ import Vapor
 internal struct ClientController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "client")
-        group.post("register", use: self.register)
+        group.post("register", use: self.register(request:))
     }
 
-    internal func register(request: Request) async throws -> ClientRegistration {
+    internal func register(request: Request) async throws -> Response {
         let token: String = ClientTokenGenerator.generate()
 
         let client: Client = .init()
@@ -29,6 +29,6 @@ internal struct ClientController: RouteCollection {
 
         try await client.save(on: request.db)
 
-        return .init(token: token, expirationDate: client.expirationDate)
+        return try await ClientRegistration(token: token, expirationDate: client.expirationDate).encodeResponse(status: .created, for: request)
     }
 }
