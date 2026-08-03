@@ -11,7 +11,7 @@ import Vapor
 internal struct HealthController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws {
         let group: any RoutesBuilder = routes.grouped("api", "v1")
-        group.get("health", use: self.health)
+        group.get("health", use: self.health(request:))
     }
 
     internal func health(request: Request) async throws -> Response {
