@@ -17,7 +17,7 @@ internal enum AppEnvironment {
         self.bool("APP_DISABLE_USER_REGISTRATIONS") ?? false
     }
 
-    internal static var isPublicClientRegistration: Bool {
+    internal static var isPublicClientRegistrationEnabled: Bool {
         self.bool("APP_PUBLIC_CLIENT_REGISTRATION") ?? false
     }
 
