@@ -8,10 +8,11 @@
 import Fluent
 import Vapor
 
-// TODO: define storage
-// TODO: filesystem health check
 // TODO: implement artworks (list all, head, get, post)
-// TODO: documentation
+
+// TODO: code documentation
+// TODO: docker image
+// TODO: hosting documentation
 // TODO: tests
 
 internal struct ClientController: RouteCollection {

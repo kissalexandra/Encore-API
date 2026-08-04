@@ -15,26 +15,42 @@ internal struct HealthController: RouteCollection {
     }
 
     internal func health(request: Request) async throws -> Response {
-        var dependencies: [HealthCheckDependency] = []
+        let dependencies: [HealthCheckDependency] = [
+            await testDatabase(on: request),
+            testFileSystem(on: request)
+        ]
 
-        do {
-            _ = try await Client.query(on: request.db).first()
-            dependencies.append(.init(dependency: .database, status: .ok))
-        } catch {
-            dependencies.append(.init(dependency: .database, status: .degraded))
-        }
-
-        dependencies.append(.init(dependency: .filesystem, status: .degraded))
-
-        var healthCheck: HealthCheck = .init(status: .ok)
-        if dependencies.contains(where: { $0.status != .ok }) {
-            healthCheck.status = .degraded
-        }
-        healthCheck.dependencies = dependencies
+        let healthCheck: HealthCheck = .init(
+            status: dependencies.allSatisfy { $0.status == .ok } ? .ok : .degraded,
+            dependencies: dependencies
+        )
 
         let response: Response = .init(status: healthCheck.status == .ok ? .ok : .serviceUnavailable)
         try response.content.encode(healthCheck, as: .json)
 
         return response
+    }
+
+    private func testDatabase(on request: Request) async -> HealthCheckDependency {
+        do {
+            _ = try await Client.query(on: request.db).first()
+            return .init(dependency: .database, status: .ok)
+        } catch {
+            return .init(dependency: .database, status: .degraded)
+        }
+    }
+
+    private func testFileSystem(on request: Request) -> HealthCheckDependency {
+        let probe: URL = URL(
+            fileURLWithPath: request.application.artworkBlobStore.root
+        ).appendingPathComponent(".health-\(UUID().uuidString)")
+
+        do {
+            try Data().write(to: probe)
+            try FileManager.default.removeItem(at: probe)
+            return .init(dependency: .filesystem, status: .ok)
+        } catch {
+            return .init(dependency: .filesystem, status: .degraded)
+        }
     }
 }

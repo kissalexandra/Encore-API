@@ -19,10 +19,11 @@ internal enum HealthDependency: String, Codable {
 
 internal struct HealthCheck: Content {
     internal var status: HealthStatus
-    internal var dependencies: [HealthCheckDependency] = []
+    internal var dependencies: [HealthCheckDependency]
 
-    init(status: HealthStatus) {
+    init(status: HealthStatus, dependencies: [HealthCheckDependency]) {
         self.status = status
+        self.dependencies = dependencies
     }
 }
 

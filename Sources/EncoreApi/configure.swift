@@ -8,6 +8,7 @@
 import Fluent
 import FluentMySQLDriver
 import FluentPostgresDriver
+import Foundation
 import Vapor
 
 internal func configure(_ app: Application) async throws {
@@ -42,6 +43,10 @@ internal func configure(_ app: Application) async throws {
                     tlsConfiguration: nil
                 ), as: .mysql)
     }
+
+    let artworkRoot: String = app.directory.workingDirectory + "Storage/Artwork"
+    try FileManager.default.createDirectory(atPath: artworkRoot, withIntermediateDirectories: true)
+    app.artworkBlobStore = .init(root: artworkRoot)
 
     app.migrations.add(CreateUsersTable())
     app.migrations.add(CreateUserTokensTable())
