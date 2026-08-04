@@ -1,7 +1,11 @@
 {
+    "indentSwitchCaseLabels": true,
     "indentation": {
         "spaces": 4
     },
-    "indentSwitchCaseLabels" : true,
-    "lineLength": 120
+    "lineLength": 120,
+    "multiElementCollectionTrailingCommas": false,
+    "rules": {
+        "NoVoidReturnOnFunctionSignature": false
+    }
 }
