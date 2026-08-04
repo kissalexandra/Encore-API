@@ -11,11 +11,11 @@ import Vapor
 internal struct UserController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "users")
-        group.post("register", use: self.register(request:))
-        group.post("login", use: self.login(request:))
+        group.on(.POST, "register", use: self.register(request:))
+        group.on(.POST, "login", use: self.login(request:))
 
         let authenticated: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-        authenticated.post("logout", use: self.logout(request:))
+        authenticated.on(.POST, "logout", use: self.logout(request:))
     }
 
     private func register(request: Request) async throws -> Response {

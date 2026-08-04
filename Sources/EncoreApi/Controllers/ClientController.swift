@@ -20,10 +20,10 @@ internal struct ClientController: RouteCollection {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "clients")
 
         if AppEnvironment.isPublicClientRegistrationEnabled {
-            group.post("register", use: self.register(request:))
+            group.on(.POST, "register", use: self.register(request:))
         } else {
             group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-                .post("register", use: self.register(request:))
+                .on(.POST, "register", use: self.register(request:))
         }
     }
 

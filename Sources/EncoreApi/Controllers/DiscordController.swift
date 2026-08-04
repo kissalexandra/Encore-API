@@ -12,9 +12,9 @@ internal struct DiscordController: RouteCollection {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "discord")
         let applicationsGroup: any RoutesBuilder = group.grouped("applications")
 
-        applicationsGroup.get("", use: self.applications(request:))
+        applicationsGroup.on(.GET, "", use: self.applications(request:))
         applicationsGroup.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-            .post("add", use: self.addApplication(request:))
+            .on(.POST, "add", use: self.addApplication(request:))
     }
 
     private func applications(request: Request) async throws -> [String] {
