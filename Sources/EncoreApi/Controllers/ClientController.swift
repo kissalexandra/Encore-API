@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-// TODO: implement artworks (list all, head, get, post)
+// TODO: implement artworks (list all paged, post)
 
 // TODO: code documentation
 // TODO: docker image

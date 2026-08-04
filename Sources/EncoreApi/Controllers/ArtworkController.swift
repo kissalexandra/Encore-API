@@ -13,6 +13,9 @@ internal struct ArtworkController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks")
         group.on(.HEAD, ":fileName", use: self.exists(request:))
+
+        let managed: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
+        managed.on(.GET, "statistics", use: self.statistics(request:))
     }
 
     private func exists(request: Request) async throws -> Response {
@@ -34,5 +37,11 @@ internal struct ArtworkController: RouteCollection {
             value: ISO8601DateFormatter().string(from: artwork.expirationDate)
         )
         return response
+    }
+
+    private func statistics(request: Request) async throws -> ArtworkStats {
+        let count: Int = try await Artwork.query(on: request.db).count()
+        let totalBytes: Int = try await Artwork.query(on: request.db).sum(\.$size) ?? 0
+        return .init(count: count, totalBytes: totalBytes)
     }
 }

@@ -19,4 +19,7 @@ internal final class Artwork: Model, @unchecked Sendable {
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date
+
+    @Field(key: "size")
+    internal var size: Int
 }

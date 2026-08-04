@@ -13,6 +13,7 @@ internal struct CreateArtworksTable: AsyncMigration {
             .id()
             .field("file_name", .string, .required)
             .field("expiration_date", .datetime, .required)
+            .field("size", .int, .required)
             .unique(on: "file_name")
             .create()
     }
