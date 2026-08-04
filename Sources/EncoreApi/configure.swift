@@ -14,10 +14,12 @@ import Vapor
 internal func configure(_ app: Application) async throws {
     let decoder: JSONDecoder = .init()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
+    decoder.dateDecodingStrategy = .iso8601
     ContentConfiguration.global.use(decoder: decoder, for: .json)
 
     let encoder: JSONEncoder = .init()
     encoder.keyEncodingStrategy = .convertToSnakeCase
+    encoder.dateEncodingStrategy = .iso8601
     ContentConfiguration.global.use(encoder: encoder, for: .json)
 
     switch AppEnvironment.databaseDriver {
