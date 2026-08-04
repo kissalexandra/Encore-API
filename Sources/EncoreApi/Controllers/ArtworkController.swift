@@ -11,9 +11,10 @@ import Vapor
 
 internal struct ArtworkController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
-        let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks")
+        let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks").grouped(InstanceMiddleware())
         group.on(.HEAD, ":fileName", use: self.exists(request:))
         group.on(.GET, ":fileName", use: self.serve(request:))
+        group.on(.PUT, ":fileName", body: .collect(maxSize: "256kb"), use: self.upload(request:))
 
         let managed: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
         managed.on(.GET, "statistics", use: self.statistics(request:))
@@ -56,6 +57,62 @@ internal struct ArtworkController: RouteCollection {
         response.headers.replaceOrAdd(name: "Cache-Control", value: "public, max-age=31536000, immutable")
         response.headers.replaceOrAdd(name: "X-Content-Type-Options", value: "nosniff")
 
+        return response
+    }
+
+    private func upload(request: Request) async throws -> Response {
+        guard let fileName: String = request.parameters.get("fileName") else {
+            throw Abort(.badRequest)
+        }
+        let key: String = fileName.hasSuffix(".jpg") ? String(fileName.dropLast(4)) : fileName
+
+        guard let buffer = request.body.data else {
+            throw Abort(.badRequest, reason: "Request body is empty.")
+        }
+        let bytes: Data = .init(buffer.readableBytesView)
+
+        // The key MUST be the first 16 bytes of SHA-256 over the bytes, hex encoded. This is
+        // what stops it being an open image host: a client cannot write arbitrary bytes under
+        // a key it did not derive from those exact bytes.
+        let computedKey: String = ArtworkKey.derive(from: bytes)
+        guard computedKey == key else {
+            throw Abort(.badRequest, reason: "Body does not hash to the given key.")
+        }
+
+        // TODO: JPEGInspector — structural validation (kills polyglots) + dimensions <= 1024.
+
+        let expirationDate: Date = .init(
+            timeIntervalSinceNow: TimeInterval(AppEnvironment.artworkLifetime * 86_400)
+        )
+
+        // Idempotent: already present -> slide the retention window and return 200.
+        if let existing: Artwork = try await Artwork.query(on: request.db)
+            .filter(\.$fileName == fileName)
+            .first() {
+            existing.expirationDate = expirationDate
+            try await existing.save(on: request.db)
+            return self.makeResponse(status: .ok, expirationDate: expirationDate)
+        }
+
+        // Blob first, row second: a crash can only orphan a file (harmless, reconciled),
+        // never leave a row pointing at a file that does not exist.
+        try request.application.artworkBlobStore.write(bytes, for: key)
+
+        let artwork: Artwork = .init()
+        artwork.fileName = fileName
+        artwork.size = bytes.count
+        artwork.expirationDate = expirationDate
+        try await artwork.save(on: request.db)
+
+        return self.makeResponse(status: .created, expirationDate: expirationDate)
+    }
+
+    private func makeResponse(status: HTTPStatus, expirationDate: Date) -> Response {
+        let response: Response = .init(status: status)
+        response.headers.replaceOrAdd(
+            name: "X-Expires-At",
+            value: ISO8601DateFormatter().string(from: expirationDate)
+        )
         return response
     }
 

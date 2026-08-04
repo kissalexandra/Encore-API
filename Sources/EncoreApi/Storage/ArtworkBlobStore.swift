@@ -5,6 +5,7 @@
 //  Created by Alexandra Kiss
 //
 
+import Foundation
 import Vapor
 
 // Dumb blob storage on disk. Postgres remains authoritative for existence/expiry;
@@ -22,6 +23,30 @@ internal struct ArtworkBlobStore {
         let firstLevel: String = .init(hash.prefix(2))
         let secondLevel: String = .init(hash.dropFirst(2).prefix(2))
         return "\(self.root)/\(firstLevel)/\(secondLevel)/\(hash).jpg"
+    }
+
+    // Stages under a hidden temp name, then renames into place, so a concurrent read never
+    // observes a partial file at the final path. Content-addressed, so an existing blob is
+    // byte-identical — we dedup rather than rewrite.
+    internal func write(_ data: Data, for hash: String) throws {
+        let finalPath: String = self.path(for: hash)
+
+        guard !FileManager.default.fileExists(atPath: finalPath) else {
+            return
+        }
+
+        let directory: String = (finalPath as NSString).deletingLastPathComponent
+        try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
+
+        let stagingURL: URL = .init(fileURLWithPath: "\(directory)/.\(hash).\(UUID().uuidString)")
+        try data.write(to: stagingURL)
+
+        do {
+            try FileManager.default.moveItem(at: stagingURL, to: URL(fileURLWithPath: finalPath))
+        } catch {
+            // Another writer won the race; our bytes are identical, so drop the staging file.
+            try? FileManager.default.removeItem(at: stagingURL)
+        }
     }
 }
 

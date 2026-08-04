@@ -29,6 +29,14 @@ internal enum AppEnvironment {
         self.int("APP_USER_TOKEN_LIFETIME") ?? 30
     }
 
+    internal static var artworkLifetime: Int {
+        self.int("APP_ARTWORK_LIFETIME") ?? 30
+    }
+
+    internal static var instanceIdentifier: String {
+        self.string("APP_INSTANCE_IDENTIFIER") ?? ""
+    }
+
     internal static var databaseDriver: DatabaseDriver {
         switch self.string("DATABASE_DRIVER")?.lowercased() {
             case "mysql":
