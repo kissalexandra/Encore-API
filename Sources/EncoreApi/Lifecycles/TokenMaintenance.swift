@@ -11,7 +11,7 @@ import Vapor
 
 // Periodically deletes expired user tokens so the table does not grow without bound.
 internal struct TokenMaintenance: LifecycleHandler {
-    internal func didBootAsync(_ application: Application) async throws {
+    internal func didBootAsync(_ application: Application) async throws -> Void {
         application.eventLoopGroup.any().scheduleRepeatedAsyncTask(
             initialDelay: .hours(1),
             delay: .hours(1)

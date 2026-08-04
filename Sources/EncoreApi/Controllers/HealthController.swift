@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 
 internal struct HealthController: RouteCollection {
-    internal func boot(routes: any RoutesBuilder) throws {
+    internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1")
         group.get("health", use: self.health(request:))
     }

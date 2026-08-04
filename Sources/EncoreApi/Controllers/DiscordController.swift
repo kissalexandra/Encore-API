@@ -8,7 +8,7 @@ import Fluent
 import Vapor
 
 internal struct DiscordController: RouteCollection {
-    internal func boot(routes: any RoutesBuilder) throws {
+    internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "discord")
         let applicationsGroup: any RoutesBuilder = group.grouped("applications")
 

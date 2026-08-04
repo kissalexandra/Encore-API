@@ -8,7 +8,7 @@
 import Fluent
 
 internal struct CreateDiscordApplicationsTable: AsyncMigration {
-    internal func prepare(on database: any Database) async throws {
+    internal func prepare(on database: any Database) async throws -> Void {
         try await database.schema(DiscordApplication.schema)
             .id()
             .field("application_identifier", .string, .required)
@@ -16,7 +16,7 @@ internal struct CreateDiscordApplicationsTable: AsyncMigration {
             .create()
     }
 
-    internal func revert(on database: any Database) async throws {
+    internal func revert(on database: any Database) async throws -> Void {
         try await database.schema(DiscordApplication.schema).delete()
     }
 }

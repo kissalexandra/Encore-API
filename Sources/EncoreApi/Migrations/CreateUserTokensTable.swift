@@ -8,7 +8,7 @@
 import Fluent
 
 internal struct CreateUserTokensTable: AsyncMigration {
-    internal func prepare(on database: any Database) async throws {
+    internal func prepare(on database: any Database) async throws -> Void {
         try await database.schema(UserToken.schema)
             .id()
             .field("value_hash", .string, .required)
@@ -18,7 +18,7 @@ internal struct CreateUserTokensTable: AsyncMigration {
             .create()
     }
 
-    internal func revert(on database: any Database) async throws {
+    internal func revert(on database: any Database) async throws -> Void {
         try await database.schema(UserToken.schema).delete()
     }
 }
