@@ -9,8 +9,6 @@ import Crypto
 import Foundation
 
 internal enum ArtworkKey {
-    // The content address: the first 16 bytes of SHA-256 over the encoded JPEG bytes,
-    // hex encoded — 32 lowercase hex characters.
     internal static func derive(from data: Data) -> String {
         SHA256.hash(data: data)
             .prefix(16)

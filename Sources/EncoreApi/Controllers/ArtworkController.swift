@@ -71,21 +71,15 @@ internal struct ArtworkController: RouteCollection {
         }
         let bytes: Data = .init(buffer.readableBytesView)
 
-        // The key MUST be the first 16 bytes of SHA-256 over the bytes, hex encoded. This is
-        // what stops it being an open image host: a client cannot write arbitrary bytes under
-        // a key it did not derive from those exact bytes.
         let computedKey: String = ArtworkKey.derive(from: bytes)
         guard computedKey == key else {
             throw Abort(.badRequest, reason: "Body does not hash to the given key.")
         }
 
-        // TODO: JPEGInspector — structural validation (kills polyglots) + dimensions <= 1024.
-
         let expirationDate: Date = .init(
             timeIntervalSinceNow: TimeInterval(AppEnvironment.artworkLifetime * 86_400)
         )
 
-        // Idempotent: already present -> slide the retention window and return 200.
         if let existing: Artwork = try await Artwork.query(on: request.db)
             .filter(\.$fileName == fileName)
             .first() {
@@ -94,8 +88,6 @@ internal struct ArtworkController: RouteCollection {
             return self.makeResponse(status: .ok, expirationDate: expirationDate)
         }
 
-        // Blob first, row second: a crash can only orphan a file (harmless, reconciled),
-        // never leave a row pointing at a file that does not exist.
         try request.application.artworkBlobStore.write(bytes, for: key)
 
         let artwork: Artwork = .init()
