@@ -20,9 +20,9 @@ internal final class User: Model, @unchecked Sendable {
     @Field(key: "password_hash")
     internal var passwordHash: String
 
-    init() {}
+    internal init() {}
 
-    init(username: String, passwordHash: String) {
+    internal init(username: String, passwordHash: String) {
         self.username = username
         self.passwordHash = passwordHash
     }

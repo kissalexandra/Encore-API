@@ -23,9 +23,9 @@ internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
     @Parent(key: "user_id")
     internal var user: User
 
-    init() {}
+    internal init() {}
 
-    init(valueHash: String, expirationDate: Date, userID: User.IDValue) {
+    internal init(valueHash: String, expirationDate: Date, userID: User.IDValue) {
         self.valueHash = valueHash
         self.expirationDate = expirationDate
         self.$user.id = userID

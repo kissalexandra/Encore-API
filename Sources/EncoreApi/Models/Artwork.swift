@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-final internal class Artwork: Model, @unchecked Sendable {
+internal final class Artwork: Model, @unchecked Sendable {
     static internal let schema: String = "artworks"
 
     @ID(key: .id)

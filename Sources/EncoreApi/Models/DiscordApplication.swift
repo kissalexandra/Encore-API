@@ -17,9 +17,9 @@ internal final class DiscordApplication: Model, Content, @unchecked Sendable {
     @Field(key: "application_identifier")
     internal var applicationIdentifier: String
 
-    init() {}
+    internal init() {}
 
-    init(applicationIdentifier: String) {
+    internal init(applicationIdentifier: String) {
         self.applicationIdentifier = applicationIdentifier
     }
 }
