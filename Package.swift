@@ -8,10 +8,11 @@ let package: Package = Package(
        .macOS(.v10_15)
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "4.121.4")),
+        .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "4.122.0")),
         .package(url: "https://github.com/vapor/fluent.git", .upToNextMajor(from: "4.13.0")),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", .upToNextMajor(from: "2.12.0")),
-        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.101.0"))
+        .package(url: "https://github.com/vapor/fluent-mysql-driver.git", .upToNextMajor(from: "4.8.0")),
+        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.101.3"))
     ],
     targets: [
         .executableTarget(
@@ -19,6 +20,7 @@ let package: Package = Package(
             dependencies: [
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+                .product(name: "FluentMySQLDriver", package: "fluent-mysql-driver"),
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio")

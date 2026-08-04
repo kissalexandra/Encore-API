@@ -6,6 +6,7 @@
 //
 
 import Fluent
+import FluentMySQLDriver
 import FluentPostgresDriver
 import Vapor
 
@@ -18,15 +19,32 @@ internal func configure(_ app: Application) async throws {
     encoder.keyEncodingStrategy = .convertToSnakeCase
     ContentConfiguration.global.use(encoder: encoder, for: .json)
 
-    app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
-        hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
-        username: Environment.get("DATABASE_USERNAME") ?? "",
-        password: Environment.get("DATABASE_PASSWORD") ?? "",
-        database: Environment.get("DATABASE_NAME") ?? "",
-        tls: .prefer(try .init(configuration: .clientDefault)))
-    ), as: .psql)
+    switch AppConfiguration.databaseDriver {
+        case .postgres:
+            app.databases.use(
+                DatabaseConfigurationFactory.postgres(
+                    configuration: .init(
+                        hostname: AppConfiguration.databaseHost,
+                        port: AppConfiguration.databasePort,
+                        username: AppConfiguration.databaseUsername,
+                        password: AppConfiguration.databasePassword,
+                        database: AppConfiguration.databaseName,
+                        tls: .disable)
+                ), as: .psql)
+        case .mysql:
+            app.databases.use(
+                DatabaseConfigurationFactory.mysql(
+                    hostname: AppConfiguration.databaseHost,
+                    port: AppConfiguration.databasePort,
+                    username: AppConfiguration.databaseUsername,
+                    password: AppConfiguration.databasePassword,
+                    database: AppConfiguration.databaseName,
+                    tlsConfiguration: nil
+                ), as: .mysql)
+    }
 
+    app.migrations.add(CreateUsersTable())
+    app.migrations.add(CreateUserTokensTable())
     app.migrations.add(CreateClientsTable())
     app.migrations.add(CreateArtworksTable())
     app.migrations.add(CreateDiscordApplicationsTable())

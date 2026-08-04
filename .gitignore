@@ -1,5 +1,5 @@
 .DS_Store
-/.build
-/.swiftpm
-/.env.*
+/.env
+/.build/
+/.swiftpm/
 /Package.resolved

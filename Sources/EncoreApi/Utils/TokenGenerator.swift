@@ -1,14 +1,14 @@
 //
-//  ClientTokenGenerator.swift
+//  TokenGenerator.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
 //
 
-import Foundation
 import Crypto
+import Foundation
 
-internal enum ClientTokenGenerator {
+internal enum TokenGenerator {
     internal static func generate() -> String {
         let key: SymmetricKey = .init(size: .bits256)
         let bytes: [UInt8] = key.withUnsafeBytes(Array.init)

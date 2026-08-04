@@ -7,24 +7,62 @@
 
 import Vapor
 
+internal enum DatabaseDriver {
+    case postgres
+    case mysql
+}
+
 internal enum AppConfiguration {
-    internal static var isApplicationCreationDisabled: Bool {
-        self.flag("APP_DISABLE_APPLICATION_CREATION")
+    internal static var areUserRegistrationsDisabled: Bool {
+        self.bool("APP_DISABLE_USER_REGISTRATIONS") ?? false
     }
 
-    internal static var isClientRegistrationDisabled: Bool {
-        self.flag("APP_DISABLE_CLIENT_REGISTRATION")
+    internal static var isPublicClientRegistration: Bool {
+        self.bool("APP_PUBLIC_CLIENT_REGISTRATION") ?? false
     }
 
-    internal static var registrationSecret: String? {
-        Environment.get("APP_REGISTRATION_SECRET")
+    internal static var clientTokenLifetime: Int {
+        self.int("APP_CLIENT_TOKEN_LIFETIME") ?? 90
     }
 
-    internal static var clientTokenLifetimeDays: Int {
-        Environment.get("APP_CLIENT_TOKEN_LIFETIME_DAYS").flatMap(Int.init(_:)) ?? 90
+    internal static var databaseDriver: DatabaseDriver {
+        switch self.string("DATABASE_DRIVER")?.lowercased() {
+            case "mysql":
+                return .mysql
+            default:
+                return .postgres
+        }
     }
 
-    private static func flag(_ key: String) -> Bool {
-        Environment.get(key).flatMap(Bool.init(_:)) ?? false
+    internal static var databaseHost: String {
+        self.string("DATABASE_HOST") ?? "127.0.0.1"
+    }
+
+    internal static var databasePort: Int {
+        self.int("DATABASE_PORT") ?? 5432
+    }
+
+    internal static var databaseUsername: String {
+        self.string("DATABASE_USERNAME") ?? ""
+    }
+
+    internal static var databasePassword: String {
+        self.string("DATABASE_PASSWORD") ?? ""
+    }
+
+    internal static var databaseName: String {
+        self.string("DATABASE_NAME") ?? ""
+    }
+
+    private static func bool(_ key: String) -> Bool? {
+        return Environment.get(key).flatMap(Bool.init(_:))
+    }
+
+    private static func int(_ key: String) -> Int? {
+        return Environment.get(key).flatMap(Int.init(_:))
+    }
+
+    private static func string(_ key: String) -> String? {
+        return Environment.get(key)
     }
 }
