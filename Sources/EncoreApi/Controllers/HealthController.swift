@@ -20,7 +20,7 @@ internal struct HealthController: RouteCollection {
             testFileSystem(on: request)
         ]
 
-        let healthCheck: HealthCheck = .init(
+        let healthCheck: HealthCheckResponse = .init(
             status: dependencies.allSatisfy { $0.status == .ok } ? .ok : .degraded,
             dependencies: dependencies
         )

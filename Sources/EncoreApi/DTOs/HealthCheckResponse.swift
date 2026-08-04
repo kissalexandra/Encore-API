@@ -1,5 +1,5 @@
 //
-//  HealthCheck.swift
+//  HealthCheckResponse.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
@@ -17,7 +17,7 @@ internal enum HealthDependency: String, Codable {
     case filesystem
 }
 
-internal struct HealthCheck: Content {
+internal struct HealthCheckResponse: Content {
     internal var status: HealthStatus
     internal var dependencies: [HealthCheckDependency]
 

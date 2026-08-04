@@ -36,7 +36,7 @@ internal struct ClientController: RouteCollection {
 
         try await client.save(on: request.db)
 
-        return try await ClientRegistration(token: token, expirationDate: client.expirationDate).encodeResponse(
+        return try await ClientRegistrationResponse(token: token, expirationDate: client.expirationDate).encodeResponse(
             status: .created, for: request)
     }
 }
