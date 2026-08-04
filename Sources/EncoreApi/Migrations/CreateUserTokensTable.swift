@@ -12,6 +12,7 @@ internal struct CreateUserTokensTable: AsyncMigration {
         try await database.schema(UserToken.schema)
             .id()
             .field("value_hash", .string, .required)
+            .field("expiration_date", .datetime, .required)
             .field("user_id", .uuid, .required, .references(User.schema, "id", onDelete: .cascade))
             .unique(on: "value_hash")
             .create()

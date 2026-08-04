@@ -19,26 +19,26 @@ internal func configure(_ app: Application) async throws {
     encoder.keyEncodingStrategy = .convertToSnakeCase
     ContentConfiguration.global.use(encoder: encoder, for: .json)
 
-    switch AppConfiguration.databaseDriver {
+    switch AppEnvironment.databaseDriver {
         case .postgres:
             app.databases.use(
                 DatabaseConfigurationFactory.postgres(
                     configuration: .init(
-                        hostname: AppConfiguration.databaseHost,
-                        port: AppConfiguration.databasePort,
-                        username: AppConfiguration.databaseUsername,
-                        password: AppConfiguration.databasePassword,
-                        database: AppConfiguration.databaseName,
+                        hostname: AppEnvironment.databaseHost,
+                        port: AppEnvironment.databasePort,
+                        username: AppEnvironment.databaseUsername,
+                        password: AppEnvironment.databasePassword,
+                        database: AppEnvironment.databaseName,
                         tls: .disable)
                 ), as: .psql)
         case .mysql:
             app.databases.use(
                 DatabaseConfigurationFactory.mysql(
-                    hostname: AppConfiguration.databaseHost,
-                    port: AppConfiguration.databasePort,
-                    username: AppConfiguration.databaseUsername,
-                    password: AppConfiguration.databasePassword,
-                    database: AppConfiguration.databaseName,
+                    hostname: AppEnvironment.databaseHost,
+                    port: AppEnvironment.databasePort,
+                    username: AppEnvironment.databaseUsername,
+                    password: AppEnvironment.databasePassword,
+                    database: AppEnvironment.databaseName,
                     tlsConfiguration: nil
                 ), as: .mysql)
     }
@@ -48,6 +48,8 @@ internal func configure(_ app: Application) async throws {
     app.migrations.add(CreateClientsTable())
     app.migrations.add(CreateArtworksTable())
     app.migrations.add(CreateDiscordApplicationsTable())
+
+    app.lifecycle.use(TokenMaintenance())
 
     try routes(app)
 }

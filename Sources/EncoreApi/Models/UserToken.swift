@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-internal final class UserToken: Model, @unchecked Sendable {
+internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
     internal static let schema: String = "user_tokens"
 
     @ID(key: .id)
@@ -17,30 +17,21 @@ internal final class UserToken: Model, @unchecked Sendable {
     @Field(key: "value_hash")
     internal var valueHash: String
 
+    @Field(key: "expiration_date")
+    internal var expirationDate: Date
+
     @Parent(key: "user_id")
     internal var user: User
 
     init() {}
 
-    init(valueHash: String, userID: User.IDValue) {
+    init(valueHash: String, expirationDate: Date, userID: User.IDValue) {
         self.valueHash = valueHash
+        self.expirationDate = expirationDate
         self.$user.id = userID
     }
-}
 
-internal struct UserTokenAuthenticator: AsyncBearerAuthenticator {
-    internal func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-        let valueHash: String = TokenGenerator.hash(bearer.token)
-
-        guard
-            let token: UserToken = try await UserToken.query(on: request.db)
-                .filter(\.$valueHash == valueHash)
-                .with(\.$user)
-                .first()
-        else {
-            return
-        }
-
-        request.auth.login(token.user)
+    internal var isValid: Bool {
+        self.expirationDate > Date()
     }
 }

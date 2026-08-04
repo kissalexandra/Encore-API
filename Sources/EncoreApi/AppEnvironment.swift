@@ -1,5 +1,5 @@
 //
-//  AppConfiguration.swift
+//  AppEnvironment.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
@@ -12,7 +12,7 @@ internal enum DatabaseDriver {
     case mysql
 }
 
-internal enum AppConfiguration {
+internal enum AppEnvironment {
     internal static var areUserRegistrationsDisabled: Bool {
         self.bool("APP_DISABLE_USER_REGISTRATIONS") ?? false
     }
@@ -23,6 +23,10 @@ internal enum AppConfiguration {
 
     internal static var clientTokenLifetime: Int {
         self.int("APP_CLIENT_TOKEN_LIFETIME") ?? 90
+    }
+
+    internal static var userTokenLifetime: Int {
+        self.int("APP_USER_TOKEN_LIFETIME") ?? 30
     }
 
     internal static var databaseDriver: DatabaseDriver {

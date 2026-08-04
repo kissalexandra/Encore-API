@@ -12,13 +12,14 @@ internal struct UserController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "users")
         group.post("register", use: self.register(request:))
+        group.post("login", use: self.login(request:))
 
-        let passwordProtected: any RoutesBuilder = group.grouped(User.authenticator())
-        passwordProtected.post("login", use: self.login(request:))
+        let authenticated: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
+        authenticated.post("logout", use: self.logout(request:))
     }
 
     internal func register(request: Request) async throws -> Response {
-        guard !AppConfiguration.areUserRegistrationsDisabled else {
+        guard !AppEnvironment.areUserRegistrationsDisabled else {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
         }
 
@@ -42,12 +43,27 @@ internal struct UserController: RouteCollection {
     }
 
     internal func login(request: Request) async throws -> UserTokenResponse {
-        let user: User = try request.auth.require(User.self)
+        let credentials: UserLogin = try request.content.decode(UserLogin.self)
+
+        let user: User? = try await User.query(on: request.db)
+            .filter(\.$username == credentials.username)
+            .first()
+        guard let user: User, try user.verify(password: credentials.password) else {
+            throw Abort(.unauthorized, reason: "Invalid username or password.")
+        }
 
         let token: String = TokenGenerator.generate()
-        let userToken: UserToken = .init(valueHash: TokenGenerator.hash(token), userID: try user.requireID())
+        let expirationDate: Date = Date(timeIntervalSinceNow: TimeInterval(AppEnvironment.userTokenLifetime * 86_400))
+        let userToken: UserToken = .init(
+            valueHash: TokenGenerator.hash(token), expirationDate: expirationDate, userID: try user.requireID())
         try await userToken.save(on: request.db)
 
         return .init(token: token)
+    }
+
+    internal func logout(request: Request) async throws -> HTTPStatus {
+        let token: UserToken = try request.auth.require(UserToken.self)
+        try await token.delete(on: request.db)
+        return .noContent
     }
 }

@@ -8,17 +8,17 @@
 import Fluent
 import Vapor
 
-// TODO: head existing cover
-// TODO: upload cover
+// TODO: define storage
 // TODO: filesystem health check
+// TODO: implement artworks (list all, head, get, post)
 // TODO: documentation
 // TODO: tests
 
 internal struct ClientController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws {
-        let group: any RoutesBuilder = routes.grouped("api", "v1", "client")
+        let group: any RoutesBuilder = routes.grouped("api", "v1", "clients")
 
-        if AppConfiguration.isPublicClientRegistration {
+        if AppEnvironment.isPublicClientRegistration {
             group.post("register", use: self.register(request:))
         } else {
             group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
@@ -31,7 +31,7 @@ internal struct ClientController: RouteCollection {
 
         let client: Client = .init()
         client.tokenHash = TokenGenerator.hash(token)
-        client.expirationDate = Date(timeIntervalSinceNow: TimeInterval(AppConfiguration.clientTokenLifetime * 86_400))
+        client.expirationDate = Date(timeIntervalSinceNow: TimeInterval(AppEnvironment.clientTokenLifetime * 86_400))
 
         try await client.save(on: request.db)
 
