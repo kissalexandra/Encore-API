@@ -17,11 +17,11 @@ internal struct DiscordController: RouteCollection {
             .post("add", use: self.addApplication(request:))
     }
 
-    internal func applications(request: Request) async throws -> [String] {
+    private func applications(request: Request) async throws -> [String] {
         return try await DiscordApplication.query(on: request.db).all().map(\.applicationIdentifier)
     }
 
-    internal func addApplication(request: Request) async throws -> Response {
+    private func addApplication(request: Request) async throws -> Response {
         let application: DiscordApplication = try request.content.decode(DiscordApplication.self)
         try await application.save(on: request.db)
         return .init(status: .created)

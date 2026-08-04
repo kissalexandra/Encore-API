@@ -18,7 +18,7 @@ internal struct UserController: RouteCollection {
         authenticated.post("logout", use: self.logout(request:))
     }
 
-    internal func register(request: Request) async throws -> Response {
+    private func register(request: Request) async throws -> Response {
         guard !AppEnvironment.areUserRegistrationsDisabled else {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
         }
@@ -42,7 +42,7 @@ internal struct UserController: RouteCollection {
         return .init(status: .created)
     }
 
-    internal func login(request: Request) async throws -> UserTokenResponse {
+    private func login(request: Request) async throws -> UserTokenResponse {
         let credentials: UserLogin = try request.content.decode(UserLogin.self)
 
         let user: User? = try await User.query(on: request.db)
@@ -61,7 +61,7 @@ internal struct UserController: RouteCollection {
         return .init(token: token)
     }
 
-    internal func logout(request: Request) async throws -> HTTPStatus {
+    private func logout(request: Request) async throws -> HTTPStatus {
         let token: UserToken = try request.auth.require(UserToken.self)
         try await token.delete(on: request.db)
         return .noContent

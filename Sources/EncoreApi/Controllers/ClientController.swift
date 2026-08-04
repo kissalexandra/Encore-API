@@ -27,7 +27,7 @@ internal struct ClientController: RouteCollection {
         }
     }
 
-    internal func register(request: Request) async throws -> Response {
+    private func register(request: Request) async throws -> Response {
         let token: String = TokenGenerator.generate()
 
         let client: Client = .init()

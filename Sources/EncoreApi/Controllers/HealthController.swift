@@ -14,7 +14,7 @@ internal struct HealthController: RouteCollection {
         group.get("health", use: self.health(request:))
     }
 
-    internal func health(request: Request) async throws -> Response {
+    private func health(request: Request) async throws -> Response {
         let dependencies: [HealthCheckDependency] = [
             await testDatabase(on: request),
             testFileSystem(on: request)
