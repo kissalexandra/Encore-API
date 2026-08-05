@@ -14,8 +14,8 @@ internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
     @ID(key: .id)
     internal var id: UUID?
 
-    @Field(key: "value_hash")
-    internal var valueHash: String
+    @Field(key: "token_hash")
+    internal var tokenHash: String
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date
@@ -26,7 +26,7 @@ internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
     internal init() {}
 
     internal init(valueHash: String, expirationDate: Date, userID: User.IDValue) {
-        self.valueHash = valueHash
+        self.tokenHash = valueHash
         self.expirationDate = expirationDate
         self.$user.id = userID
     }

@@ -11,11 +11,8 @@ import Vapor
 internal final class Artwork: Model, @unchecked Sendable {
     static internal let schema: String = "artworks"
 
-    @ID(key: .id)
-    internal var id: UUID?
-
-    @Field(key: "file_name")
-    internal var fileName: String
+    @ID(custom: "hash", generatedBy: .user)
+    internal var id: String?
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date

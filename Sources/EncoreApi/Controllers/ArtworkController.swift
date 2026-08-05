@@ -6,7 +6,6 @@
 //
 
 import Fluent
-import Foundation
 import Vapor
 
 internal struct ArtworkController: RouteCollection {
@@ -15,9 +14,6 @@ internal struct ArtworkController: RouteCollection {
         group.on(.HEAD, ":fileName", use: self.exists(request:))
         group.on(.GET, ":fileName", use: self.serve(request:))
         group.on(.PUT, ":fileName", body: .collect(maxSize: "256kb"), use: self.upload(request:))
-
-        let managed: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-        managed.on(.GET, "statistics", use: self.statistics(request:))
     }
 
     private func exists(request: Request) async throws -> Response {
@@ -25,11 +21,7 @@ internal struct ArtworkController: RouteCollection {
             throw Abort(.badRequest)
         }
 
-        let artwork: Artwork? = try await Artwork.query(on: request.db)
-            .filter(\.$fileName == fileName)
-            .first()
-
-        guard let artwork: Artwork else {
+        guard let artwork: Artwork = try await Artwork.find(fileName, on: request.db) else {
             throw Abort(.notFound)
         }
 
@@ -80,9 +72,7 @@ internal struct ArtworkController: RouteCollection {
             timeIntervalSinceNow: TimeInterval(AppEnvironment.artworkLifetime * 86_400)
         )
 
-        if let existing: Artwork = try await Artwork.query(on: request.db)
-            .filter(\.$fileName == fileName)
-            .first() {
+        if let existing: Artwork = try await Artwork.find(fileName, on: request.db) {
             existing.expirationDate = expirationDate
             try await existing.save(on: request.db)
             return self.makeResponse(status: .ok, expirationDate: expirationDate)
@@ -91,7 +81,7 @@ internal struct ArtworkController: RouteCollection {
         try request.application.artworkBlobStore.write(bytes, for: key)
 
         let artwork: Artwork = .init()
-        artwork.fileName = fileName
+        artwork.id = fileName
         artwork.size = bytes.count
         artwork.expirationDate = expirationDate
         try await artwork.save(on: request.db)
@@ -106,11 +96,5 @@ internal struct ArtworkController: RouteCollection {
             value: ISO8601DateFormatter().string(from: expirationDate)
         )
         return response
-    }
-
-    private func statistics(request: Request) async throws -> ArtworkStats {
-        let count: Int = try await Artwork.query(on: request.db).count()
-        let totalBytes: Int = try await Artwork.query(on: request.db).sum(\.$size) ?? 0
-        return .init(count: count, totalBytes: totalBytes)
     }
 }

@@ -11,10 +11,10 @@ internal struct CreateUserTokensTable: AsyncMigration {
     internal func prepare(on database: any Database) async throws -> Void {
         try await database.schema(UserToken.schema)
             .id()
-            .field("value_hash", .string, .required)
+            .field("user_id", .uuid, .required, .references(User.schema, "id"))
+            .field("token_hash", .string, .required)
             .field("expiration_date", .datetime, .required)
-            .field("user_id", .uuid, .required, .references(User.schema, "id", onDelete: .cascade))
-            .unique(on: "value_hash")
+            .unique(on: "token_hash")
             .create()
     }
 

@@ -14,7 +14,7 @@ internal struct UserTokenAuthenticator: AsyncBearerAuthenticator {
 
         guard
             let token: UserToken = try await UserToken.query(on: request.db)
-                .filter(\.$valueHash == valueHash)
+                .filter(\.$tokenHash == valueHash)
                 .with(\.$user)
                 .first(),
             token.isValid

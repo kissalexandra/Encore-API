@@ -10,11 +10,9 @@ import Fluent
 internal struct CreateArtworksTable: AsyncMigration {
     internal func prepare(on database: any Database) async throws -> Void {
         try await database.schema(Artwork.schema)
-            .id()
-            .field("file_name", .string, .required)
+            .field("hash", .string, .identifier(auto: false))
             .field("expiration_date", .datetime, .required)
             .field("size", .int, .required)
-            .unique(on: "file_name")
             .create()
     }
 
