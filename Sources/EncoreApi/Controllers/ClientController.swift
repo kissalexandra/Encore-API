@@ -20,7 +20,7 @@ internal struct ClientController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "clients")
 
-        if AppEnvironment.isPublicClientRegistrationEnabled {
+        if AppEnvironment.isPublicInstance {
             group.on(.POST, "register", use: self.register(request:))
         } else {
             group.grouped(UserTokenAuthenticator(), User.guardMiddleware())

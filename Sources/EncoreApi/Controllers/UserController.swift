@@ -19,7 +19,7 @@ internal struct UserController: RouteCollection {
     }
 
     private func register(request: Request) async throws -> Response {
-        guard !AppEnvironment.areUserRegistrationsDisabled else {
+        guard AppEnvironment.isUserRegistrationEnabled else {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
         }
 
