@@ -13,7 +13,7 @@ internal struct ArtworkController: RouteCollection {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks").grouped(InstanceMiddleware())
         group.on(.HEAD, ":fileName", use: self.exists(request:))
         group.on(.GET, ":fileName", use: self.serve(request:))
-        group.on(.PUT, ":fileName", body: .collect(maxSize: "256kb"), use: self.upload(request:))
+        group.on(.PUT, ":fileName", body: .collect(maxSize: "128kb"), use: self.upload(request:))
     }
 
     private func exists(request: Request) async throws -> Response {
