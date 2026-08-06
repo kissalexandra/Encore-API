@@ -30,8 +30,4 @@ internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
         self.expirationDate = expirationDate
         self.$user.id = userID
     }
-
-    internal var isValid: Bool {
-        self.expirationDate > Date()
-    }
 }

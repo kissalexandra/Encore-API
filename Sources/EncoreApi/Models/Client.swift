@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-internal final class Client: Model, @unchecked Sendable {
+internal final class Client: Model, Authenticatable, @unchecked Sendable {
     internal static let schema: String = "clients"
 
     @ID(key: .id)

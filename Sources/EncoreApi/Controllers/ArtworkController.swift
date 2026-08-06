@@ -11,9 +11,13 @@ import Vapor
 internal struct ArtworkController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks").grouped(InstanceMiddleware())
-        group.on(.HEAD, ":fileName", use: self.exists(request:))
+
+        // Discord needs to be able to request the artworks without authentication.
         group.on(.GET, ":fileName", use: self.serve(request:))
-        group.on(.PUT, ":fileName", body: .collect(maxSize: "128kb"), use: self.upload(request:))
+
+        let clientAuthenticatedGroup: any RoutesBuilder = group.grouped(ClientTokenAuthenticator(), Client.guardMiddleware())
+        clientAuthenticatedGroup.on(.HEAD, ":fileName", use: self.exists(request:))
+        clientAuthenticatedGroup.on(.PUT, ":fileName", body: .collect(maxSize: "128kb"), use: self.upload(request:))
     }
 
     /// Returns whether an artwork exists.

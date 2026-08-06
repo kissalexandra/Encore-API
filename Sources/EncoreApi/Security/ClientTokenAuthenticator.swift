@@ -1,5 +1,5 @@
 //
-//  UserTokenAuthenticator.swift
+//  ClientTokenAuthenticator.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
@@ -8,21 +8,19 @@
 import Fluent
 import Vapor
 
-internal struct UserTokenAuthenticator: AsyncBearerAuthenticator {
+internal struct ClientTokenAuthenticator: AsyncBearerAuthenticator {
     internal func authenticate(bearer: BearerAuthorization, for request: Request) async throws -> Void {
         let tokenHash: String = TokenGenerator.hash(bearer.token)
 
         guard
-            let token: UserToken = try await UserToken.query(on: request.db)
+            let client: Client = try await Client.query(on: request.db)
                 .filter(\.$tokenHash == tokenHash)
-                .with(\.$user)
                 .first(),
-            token.expirationDate > .now
+            client.expirationDate > .now
         else {
             return
         }
 
-        request.auth.login(token.user)
-        request.auth.login(token)
+        request.auth.login(client)
     }
 }
