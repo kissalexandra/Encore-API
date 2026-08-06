@@ -14,11 +14,14 @@ internal enum DatabaseDriver {
 
 internal enum AppEnvironmentError: Error, CustomStringConvertible {
     case instanceIdentifierEmpty
+    case unsupportedDatabaseDriver
 
     internal var description: String {
         switch self {
             case .instanceIdentifierEmpty:
                 return "The instance identifier must not be empty."
+            case .unsupportedDatabaseDriver:
+                return "The database driver must be 'postgresql' or 'mysql'."
         }
     }
 }
@@ -48,12 +51,14 @@ internal enum AppEnvironment {
         self.int("APP_USER_TOKEN_LIFETIME") ?? 30
     }
 
-    internal static var databaseDriver: DatabaseDriver {
+    internal static var databaseDriver: DatabaseDriver? {
         switch self.string("DATABASE_DRIVER")?.lowercased() {
+            case "postgresql":
+                return .postgres
             case "mysql":
                 return .mysql
             default:
-                return .postgres
+                return nil
         }
     }
 
@@ -62,7 +67,7 @@ internal enum AppEnvironment {
     }
 
     internal static var databaseName: String {
-        self.string("DATABASE_NAME") ?? ""
+        self.string("DATABASE_NAME") ?? "encore"
     }
 
     internal static var databasePassword: String {
@@ -74,7 +79,7 @@ internal enum AppEnvironment {
     }
 
     internal static var databaseUsername: String {
-        self.string("DATABASE_USERNAME") ?? ""
+        self.string("DATABASE_USERNAME") ?? "encore"
     }
 
     private static func bool(_ key: String) -> Bool? {

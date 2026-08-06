@@ -26,7 +26,11 @@ internal func configure(_ app: Application) async throws {
         throw AppEnvironmentError.instanceIdentifierEmpty
     }
 
-    switch AppEnvironment.databaseDriver {
+    guard let databaseDriver: DatabaseDriver = AppEnvironment.databaseDriver else {
+        throw AppEnvironmentError.unsupportedDatabaseDriver
+    }
+
+    switch databaseDriver {
         case .postgres:
             app.databases.use(
                 DatabaseConfigurationFactory.postgres(
