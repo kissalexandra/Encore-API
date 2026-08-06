@@ -22,6 +22,10 @@ internal func configure(_ app: Application) async throws {
     encoder.dateEncodingStrategy = .iso8601
     ContentConfiguration.global.use(encoder: encoder, for: .json)
 
+    if AppEnvironment.instanceIdentifier.isEmpty {
+        throw AppEnvironmentError.instanceIdentifierEmpty
+    }
+
     switch AppEnvironment.databaseDriver {
         case .postgres:
             app.databases.use(

@@ -12,6 +12,17 @@ internal enum DatabaseDriver {
     case mysql
 }
 
+internal enum AppEnvironmentError: Error, CustomStringConvertible {
+    case instanceIdentifierEmpty
+
+    internal var description: String {
+        switch self {
+            case .instanceIdentifierEmpty:
+                return "The instance identifier must not be empty."
+        }
+    }
+}
+
 internal enum AppEnvironment {
     internal static var artworkLifetime: Int {
         self.int("APP_ARTWORK_LIFETIME") ?? 30
