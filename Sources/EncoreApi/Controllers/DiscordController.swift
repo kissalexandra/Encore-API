@@ -10,11 +10,13 @@ import Vapor
 internal struct DiscordController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "discord")
-        let applicationsGroup: any RoutesBuilder = group.grouped("applications")
 
+        let applicationsGroup: any RoutesBuilder = group.grouped("applications")
         applicationsGroup.on(.GET, "", use: self.applications(request:))
-        applicationsGroup.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-            .on(.POST, "add", use: self.addApplication(request:))
+
+        let userAuthenticatedApplicationsGroup: any RoutesBuilder = applicationsGroup.grouped(
+            UserTokenAuthenticator(), User.guardMiddleware())
+        userAuthenticatedApplicationsGroup.on(.POST, "add", use: self.addApplication(request:))
     }
 
     private func applications(request: Request) async throws -> [String] {

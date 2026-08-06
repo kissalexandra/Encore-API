@@ -14,8 +14,8 @@ internal struct UserController: RouteCollection {
         group.on(.POST, "register", use: self.register(request:))
         group.on(.POST, "login", use: self.login(request:))
 
-        let authenticated: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
-        authenticated.on(.POST, "logout", use: self.logout(request:))
+        let userAuthenticatedGroup: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
+        userAuthenticatedGroup.on(.POST, "logout", use: self.logout(request:))
     }
 
     private func register(request: Request) async throws -> Response {
@@ -29,7 +29,7 @@ internal struct UserController: RouteCollection {
         let existing: User? = try await User.query(on: request.db)
             .filter(\.$username == registration.username)
             .first()
-        guard existing == nil else {
+        guard nil == existing else {
             throw Abort(.conflict, reason: "Username is already taken.")
         }
 

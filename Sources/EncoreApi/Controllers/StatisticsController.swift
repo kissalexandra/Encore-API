@@ -10,9 +10,9 @@ import Vapor
 
 internal struct StatisticsController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
-        let group: any RoutesBuilder = routes.grouped("api", "v1").grouped(
+        let userAuthenticatedGroup: any RoutesBuilder = routes.grouped("api", "v1", "statistics").grouped(
             UserTokenAuthenticator(), User.guardMiddleware())
-        group.on(.GET, "statistics", use: self.statistics(request:))
+        userAuthenticatedGroup.on(.GET, "", use: self.statistics(request:))
     }
 
     private func statistics(request: Request) async throws -> ArtworkStats {

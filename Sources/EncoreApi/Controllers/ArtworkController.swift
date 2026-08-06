@@ -12,7 +12,7 @@ internal struct ArtworkController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) throws -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks").grouped(InstanceMiddleware())
 
-        // Discord needs to be able to request the artworks without authentication.
+        // Discord needs to be able to reach the artworks without authentication.
         group.on(.GET, ":fileName", use: self.serve(request:))
 
         let clientAuthenticatedGroup: any RoutesBuilder = group.grouped(ClientTokenAuthenticator(), Client.guardMiddleware())
