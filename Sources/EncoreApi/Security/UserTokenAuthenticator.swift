@@ -13,16 +13,15 @@ internal struct UserTokenAuthenticator: AsyncBearerAuthenticator {
         let tokenHash: String = TokenGenerator.hash(bearer.token)
 
         guard
-            let token: UserToken = try await UserToken.query(on: request.db)
-                .filter(\.$tokenHash == tokenHash)
-                .with(\.$user)
-                .first(),
+            let token: UserToken = try await UserToken.find(tokenHash, on: request.db),
             token.expirationDate > .now
         else {
             return
         }
 
-        request.auth.login(token.user)
+        let user: User = try await token.$user.get(on: request.db)
+
+        request.auth.login(user)
         request.auth.login(token)
     }
 }

@@ -55,7 +55,7 @@ internal struct UserController: RouteCollection {
         let token: String = TokenGenerator.generate()
         let expirationDate: Date = Date(timeIntervalSinceNow: TimeInterval(AppEnvironment.userTokenLifetime * 86_400))
         let userToken: UserToken = .init(
-            valueHash: TokenGenerator.hash(token), expirationDate: expirationDate, userID: try user.requireID())
+            tokenHash: TokenGenerator.hash(token), expirationDate: expirationDate, userId: try user.requireID())
         try await userToken.save(on: request.db)
 
         return .init(token: token)

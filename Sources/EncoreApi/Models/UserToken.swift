@@ -11,11 +11,8 @@ import Vapor
 internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
     internal static let schema: String = "user_tokens"
 
-    @ID(key: .id)
-    internal var id: UUID?
-
-    @Field(key: "token_hash")
-    internal var tokenHash: String
+    @ID(custom: "token_hash", generatedBy: .user)
+    internal var id: String?
 
     @Field(key: "expiration_date")
     internal var expirationDate: Date
@@ -25,9 +22,9 @@ internal final class UserToken: Model, Authenticatable, @unchecked Sendable {
 
     internal init() {}
 
-    internal init(valueHash: String, expirationDate: Date, userID: User.IDValue) {
-        self.tokenHash = valueHash
+    internal init(tokenHash: String, expirationDate: Date, userId: User.IDValue) {
+        self.id = tokenHash
         self.expirationDate = expirationDate
-        self.$user.id = userID
+        self.$user.id = userId
     }
 }
