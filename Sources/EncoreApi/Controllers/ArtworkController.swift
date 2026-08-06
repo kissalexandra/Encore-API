@@ -28,8 +28,9 @@ internal struct ArtworkController: RouteCollection {
         let response: Response = .init(status: .ok)
         response.headers.replaceOrAdd(
             name: "X-Expires-At",
-            value: ISO8601DateFormatter().string(from: artwork.expirationDate)
+            value: artwork.expirationDate.ISO8601Format()
         )
+
         return response
     }
 
@@ -93,7 +94,7 @@ internal struct ArtworkController: RouteCollection {
         let response: Response = .init(status: status)
         response.headers.replaceOrAdd(
             name: "X-Expires-At",
-            value: ISO8601DateFormatter().string(from: expirationDate)
+            value: expirationDate.ISO8601Format()
         )
         return response
     }
