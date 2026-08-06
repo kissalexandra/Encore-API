@@ -16,9 +16,10 @@ internal struct UserController: RouteCollection {
 
         let userAuthenticatedGroup: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
         userAuthenticatedGroup.on(.POST, "logout", use: self.logout(request:))
+        userAuthenticatedGroup.on(.POST, "delete", use: self.delete(request:))
     }
 
-    private func register(request: Request) async throws -> Response {
+    private func register(request: Request) async throws -> HTTPStatus {
         guard AppEnvironment.isUserRegistrationEnabled else {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
         }
@@ -39,7 +40,7 @@ internal struct UserController: RouteCollection {
         )
         try await user.save(on: request.db)
 
-        return .init(status: .created)
+        return .created
     }
 
     private func login(request: Request) async throws -> UserTokenResponse {
@@ -64,6 +65,12 @@ internal struct UserController: RouteCollection {
     private func logout(request: Request) async throws -> HTTPStatus {
         let token: UserToken = try request.auth.require(UserToken.self)
         try await token.delete(on: request.db)
+        return .noContent
+    }
+
+    private func delete(request: Request) async throws -> HTTPStatus {
+        let user: User = try request.auth.require(User.self)
+        try await user.delete(on: request.db)
         return .noContent
     }
 }
