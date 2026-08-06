@@ -23,7 +23,7 @@ internal struct DiscordController: RouteCollection {
         return try await DiscordApplication.query(on: request.db).all().map(\.applicationIdentifier)
     }
 
-    private func addApplication(request: Request) async throws -> Response {
+    private func addApplication(request: Request) async throws -> HTTPStatus {
         let application: DiscordApplication = try request.content.decode(DiscordApplication.self)
 
         let existingApplication: DiscordApplication? = try await DiscordApplication.query(
@@ -33,6 +33,6 @@ internal struct DiscordController: RouteCollection {
         }
 
         try await application.save(on: request.db)
-        return .init(status: .created)
+        return .created
     }
 }
