@@ -56,7 +56,9 @@ internal func configure(_ app: Application) async throws {
     app.migrations.add(CreateArtworksTable())
     app.migrations.add(CreateDiscordApplicationsTable())
 
-    app.lifecycle.use(TokenMaintenance())
+    app.lifecycle.use(ArtworkLifecycle())
+    app.lifecycle.use(ClientLifecycle())
+    app.lifecycle.use(UserTokenLifecycle())
 
     try routes(app)
 }

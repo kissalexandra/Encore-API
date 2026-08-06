@@ -1,15 +1,14 @@
 //
-//  TokenMaintenance.swift
+//  ClientLifecycle.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
 //
 
 import Fluent
-import NIOCore
 import Vapor
 
-internal struct TokenMaintenance: LifecycleHandler {
+internal struct ClientLifecycle: LifecycleHandler {
     internal func didBootAsync(_ application: Application) async throws -> Void {
         application.eventLoopGroup.any().scheduleRepeatedAsyncTask(
             initialDelay: .hours(1),
@@ -17,8 +16,8 @@ internal struct TokenMaintenance: LifecycleHandler {
         ) { _ in
             application.eventLoopGroup.any().makeFutureWithTask {
                 do {
-                    try await UserToken.query(on: application.db)
-                        .filter(\.$expirationDate < Date())
+                    try await Client.query(on: application.db)
+                        .filter(\.$expirationDate < .now)
                         .delete()
                 } catch {
                     application.logger.report(error: error)
