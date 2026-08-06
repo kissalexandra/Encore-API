@@ -9,6 +9,7 @@ import Fluent
 import Vapor
 
 // TODO: code documentation
+// TODO: rate limitting
 // TODO: docker image
 // TODO: hosting documentation
 // TODO: tests
