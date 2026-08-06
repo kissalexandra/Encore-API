@@ -26,10 +26,10 @@ internal struct UserController: RouteCollection {
         try UserRegistration.validate(content: request)
         let registration: UserRegistration = try request.content.decode(UserRegistration.self)
 
-        let existing: User? = try await User.query(on: request.db)
+        let existingUser: User? = try await User.query(on: request.db)
             .filter(\.$username == registration.username)
             .first()
-        guard nil == existing else {
+        guard nil == existingUser else {
             throw Abort(.conflict, reason: "Username is already taken.")
         }
 

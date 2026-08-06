@@ -9,9 +9,6 @@ import Fluent
 import Vapor
 
 // TODO: clean up
-// TODO: rename token maintenance
-// TODO: artwork sweeper
-// TODO: client sweeper
 
 // TODO: code documentation
 // TODO: rate limitting

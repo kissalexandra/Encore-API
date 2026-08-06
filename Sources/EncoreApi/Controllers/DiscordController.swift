@@ -25,6 +25,13 @@ internal struct DiscordController: RouteCollection {
 
     private func addApplication(request: Request) async throws -> Response {
         let application: DiscordApplication = try request.content.decode(DiscordApplication.self)
+
+        let existingApplication: DiscordApplication? = try await DiscordApplication.query(
+            on: request.db).filter(\.$applicationIdentifier == application.applicationIdentifier).first()
+        guard nil == existingApplication else {
+            throw Abort(.conflict, reason: "Application already exists.")
+        }
+
         try await application.save(on: request.db)
         return .init(status: .created)
     }

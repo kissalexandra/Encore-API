@@ -108,9 +108,9 @@ internal struct ArtworkController: RouteCollection {
         let expirationDate: Date = .init(timeIntervalSinceNow: TimeInterval(AppEnvironment.artworkLifetime * 86_400))
 
         // Reset the artwork's expiration date if it already exists.
-        if let existing: Artwork = try await Artwork.find(fileName, on: request.db) {
-            existing.expirationDate = expirationDate
-            try await existing.save(on: request.db)
+        if let existingArtwork: Artwork = try await Artwork.find(fileName, on: request.db) {
+            existingArtwork.expirationDate = expirationDate
+            try await existingArtwork.save(on: request.db)
 
             let response: Response = .init()
             response.headers.replaceOrAdd(name: "X-Expires-At", value: expirationDate.ISO8601Format())
