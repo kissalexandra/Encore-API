@@ -21,11 +21,11 @@ internal struct HealthController: RouteCollection {
         ]
 
         let healthCheck: HealthCheckResponse = .init(
-            status: dependencies.allSatisfy { $0.status == .ok } ? .ok : .degraded,
+            status: dependencies.allSatisfy { .ok == $0.status } ? .ok : .degraded,
             dependencies: dependencies
         )
 
-        let response: Response = .init(status: healthCheck.status == .ok ? .ok : .serviceUnavailable)
+        let response: Response = .init(status: .ok == healthCheck.status ? .ok : .serviceUnavailable)
         try response.content.encode(healthCheck, as: .json)
 
         return response
