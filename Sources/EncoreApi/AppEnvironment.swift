@@ -44,7 +44,7 @@ internal enum AppEnvironment {
     }
 
     internal static var isUserRegistrationEnabled: Bool {
-        self.bool("APP_USER_ENABLE_REGISTRATION") ?? true
+        self.bool("APP_USER_ENABLE_REGISTRATION") ?? false
     }
 
     internal static var userTokenLifetime: Int {

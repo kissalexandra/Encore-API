@@ -22,7 +22,7 @@ internal struct ArtworkController: RouteCollection {
 
     /// Returns whether an artwork exists.
     ///
-    /// The instance ID is included as a header through a middleware.
+    /// The instance identifier is included as a header through a middleware.
     ///
     /// - Returns: `.ok` with the artwork's expiration date.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or
@@ -48,7 +48,7 @@ internal struct ArtworkController: RouteCollection {
 
     /// Returns an artwork.
     ///
-    /// The instance ID is included as a header through a middleware.
+    /// The instance identifier is included as a header through a middleware.
     ///
     /// - Returns: The artwork.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or
@@ -84,7 +84,7 @@ internal struct ArtworkController: RouteCollection {
     ///
     /// The artwork's expiration date is reset if it already exists instead.
     ///
-    /// The instance ID is included as a header through a middleware.
+    /// The instance identifier is included as a header through a middleware.
     ///
     /// - Returns: `.ok` if an existing artwork's expiration date was reset or `.created` if the body was saved.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or if they body is empty or the hashes mismatch
