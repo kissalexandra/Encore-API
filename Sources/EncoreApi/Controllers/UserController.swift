@@ -15,8 +15,14 @@ internal struct UserController: RouteCollection {
         group.on(.POST, "login", use: self.login(request:))
 
         let userAuthenticatedGroup: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
+        userAuthenticatedGroup.on(.GET, "", use: self.list(request:))
         userAuthenticatedGroup.on(.POST, "logout", use: self.logout(request:))
         userAuthenticatedGroup.on(.DELETE, ":userId", use: self.delete(request:))
+    }
+
+    private func list(request: Request) async throws -> [UserListResponse] {
+        let users: [User] = try await User.query(on: request.db).all()
+        return try users.map { try .init(user: $0) }
     }
 
     private func register(request: Request) async throws -> HTTPStatus {
