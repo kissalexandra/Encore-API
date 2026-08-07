@@ -1,5 +1,5 @@
 //
-//  UserLogin.swift
+//  UserDeletionRequest.swift
 //  Encore-API
 //
 //  Created by Alexandra Kiss
@@ -7,7 +7,6 @@
 
 import Vapor
 
-internal struct UserLogin: Content {
-    internal let username: String
+internal struct UserDeletionRequest: Content {
     internal let password: String
 }

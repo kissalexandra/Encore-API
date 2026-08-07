@@ -30,8 +30,8 @@ internal struct UserController: RouteCollection {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
         }
 
-        try UserRegistration.validate(content: request)
-        let registration: UserRegistration = try request.content.decode(UserRegistration.self)
+        try UserRegistrationRequest.validate(content: request)
+        let registration: UserRegistrationRequest = try request.content.decode(UserRegistrationRequest.self)
 
         let existingUser: User? = try await User.query(on: request.db)
             .filter(\.$username == registration.username)
@@ -50,7 +50,7 @@ internal struct UserController: RouteCollection {
     }
 
     private func login(request: Request) async throws -> UserTokenResponse {
-        let credentials: UserLogin = try request.content.decode(UserLogin.self)
+        let credentials: UserLoginRequest = try request.content.decode(UserLoginRequest.self)
 
         let user: User? = try await User.query(on: request.db)
             .filter(\.$username == credentials.username)
@@ -77,7 +77,7 @@ internal struct UserController: RouteCollection {
     private func delete(request: Request) async throws -> HTTPStatus {
         let actor: User = try request.auth.require(User.self)
 
-        let userDeletion: UserDeletion = try await .decodeRequest(request)
+        let userDeletion: UserDeletionRequest = try await .decodeRequest(request)
         guard try actor.verify(password: userDeletion.password) else {
             throw Abort(.unauthorized, reason: "Password is incorrect.")
         }
