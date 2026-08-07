@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 
 internal struct UserController: RouteCollection {
-    internal func boot(routes: any RoutesBuilder) throws -> Void {
+    internal func boot(routes: any RoutesBuilder) -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "users")
         group.on(.POST, "register", use: self.register(request:))
         group.on(.POST, "login", use: self.login(request:))

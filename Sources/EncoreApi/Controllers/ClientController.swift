@@ -17,7 +17,7 @@ import Vapor
 // TODO: tests
 
 internal struct ClientController: RouteCollection {
-    internal func boot(routes: any RoutesBuilder) throws -> Void {
+    internal func boot(routes: any RoutesBuilder) -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "clients")
 
         if AppEnvironment.isPublicInstance {

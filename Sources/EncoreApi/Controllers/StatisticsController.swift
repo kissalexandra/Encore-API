@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 
 internal struct StatisticsController: RouteCollection {
-    internal func boot(routes: any RoutesBuilder) throws -> Void {
+    internal func boot(routes: any RoutesBuilder) -> Void {
         let userAuthenticatedGroup: any RoutesBuilder = routes.grouped("api", "v1", "statistics").grouped(
             UserTokenAuthenticator(), User.guardMiddleware())
         userAuthenticatedGroup.on(.GET, "", use: self.statistics(request:))
