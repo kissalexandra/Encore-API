@@ -15,7 +15,8 @@ internal struct ArtworkController: RouteCollection {
         // Discord needs to be able to reach the artworks without authentication.
         group.on(.GET, ":fileName", use: self.serve(request:))
 
-        let clientAuthenticatedGroup: any RoutesBuilder = group.grouped(ClientTokenAuthenticator(), Client.guardMiddleware())
+        let clientAuthenticatedGroup: any RoutesBuilder = group.grouped(
+            ClientTokenAuthenticator(), Client.guardMiddleware())
         clientAuthenticatedGroup.on(.HEAD, ":fileName", use: self.exists(request:))
         clientAuthenticatedGroup.on(.PUT, ":fileName", body: .collect(maxSize: "128kb"), use: self.upload(request:))
     }
@@ -100,7 +101,7 @@ internal struct ArtworkController: RouteCollection {
         let bytes: Data = .init(buffer.readableBytesView)
 
         // Check if the body's hash matches with the client's.
-        let computedKey: String = ArtworkKey.derive(from: bytes)
+        let computedKey: String = ArtworkHasher.hash(bytes)
         guard computedKey == key else {
             throw Abort(.badRequest, reason: "Body does not hash to the given key.")
         }

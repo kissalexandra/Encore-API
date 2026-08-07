@@ -13,9 +13,15 @@ internal struct ArtworkLifecycle: LifecycleHandler {
         application.eventLoopGroup.any().scheduleRepeatedAsyncTask(initialDelay: .hours(1), delay: .hours(1)) { _ in
             application.eventLoopGroup.any().makeFutureWithTask {
                 do {
-                    try await Artwork.query(on: application.db)
+                    let expiredArtworks: [Artwork] = try await Artwork.query(on: application.db)
                         .filter(\.$expirationDate < .now)
-                        .delete()
+                        .all()
+
+                    for artwork in expiredArtworks {
+                        let path: String = try application.artworkBlobStore.path(for: artwork.requireID())
+                        try await artwork.delete(on: application.db)
+                        try? FileManager.default.removeItem(atPath: path)
+                    }
                 } catch {
                     application.logger.report(error: error)
                 }

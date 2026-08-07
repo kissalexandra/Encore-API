@@ -34,7 +34,8 @@ internal struct DiscordController: RouteCollection {
         let application: DiscordApplication = try request.content.decode(DiscordApplication.self)
 
         let existingApplication: DiscordApplication? = try await DiscordApplication.query(
-            on: request.db).filter(\.$applicationIdentifier == application.applicationIdentifier).first()
+            on: request.db
+        ).filter(\.$applicationIdentifier == application.applicationIdentifier).first()
         guard nil == existingApplication else {
             throw Abort(.conflict, reason: "Application already exists.")
         }
