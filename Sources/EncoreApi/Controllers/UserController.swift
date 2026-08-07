@@ -16,7 +16,7 @@ internal struct UserController: RouteCollection {
 
         let userAuthenticatedGroup: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
         userAuthenticatedGroup.on(.POST, "logout", use: self.logout(request:))
-        userAuthenticatedGroup.on(.DELETE, "delete", use: self.delete(request:))
+        userAuthenticatedGroup.on(.DELETE, ":userId", use: self.delete(request:))
     }
 
     private func register(request: Request) async throws -> HTTPStatus {
@@ -69,8 +69,23 @@ internal struct UserController: RouteCollection {
     }
 
     private func delete(request: Request) async throws -> HTTPStatus {
-        let user: User = try request.auth.require(User.self)
+        let actor: User = try request.auth.require(User.self)
+
+        let userDeletion: UserDeletion = try await .decodeRequest(request)
+        guard try actor.verify(password: userDeletion.password) else {
+            throw Abort(.unauthorized, reason: "Password is incorrect.")
+        }
+
+        guard let userId: UUID = request.parameters.get("userId", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+
+        guard let user: User = try await User.find(userId, on: request.db) else {
+            throw Abort(.notFound)
+        }
+
         try await user.delete(on: request.db)
+
         return .noContent
     }
 }
