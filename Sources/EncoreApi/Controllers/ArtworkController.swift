@@ -26,7 +26,7 @@ internal struct ArtworkController: RouteCollection {
     ///
     /// - Returns: `.ok` with the artwork's expiration date.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or
-    ///   `Abort(.notFound)` if the artwork doesn't exist.
+    ///           `Abort(.notFound)` if the artwork doesn't exist.
     private func exists(request: Request) async throws -> Response {
         guard let fileName: String = request.parameters.get("fileName") else {
             throw Abort(.badRequest)
@@ -52,7 +52,7 @@ internal struct ArtworkController: RouteCollection {
     ///
     /// - Returns: The artwork.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or
-    ///   `Abort(.notFound)` if the artwork doesn't exist.
+    ///           `Abort(.notFound)` if the artwork doesn't exist.
     private func serve(request: Request) async throws -> Response {
         guard let fileName: String = request.parameters.get("fileName") else {
             throw Abort(.badRequest)

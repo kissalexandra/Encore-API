@@ -29,6 +29,11 @@ internal struct ClientController: RouteCollection {
         }
     }
 
+    /// Registers an Encore client.
+    ///
+    /// The instance ID is included as a header through a middleware.
+    ///
+    /// - Returns: `.created` with the client token.
     private func register(request: Request) async throws -> Response {
         let token: String = TokenGenerator.generate()
 

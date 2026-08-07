@@ -20,11 +20,19 @@ internal struct UserController: RouteCollection {
         userAuthenticatedGroup.on(.DELETE, ":userId", use: self.delete(request:))
     }
 
+    /// Returns a list of all registered users.
+    ///
+    /// - Returns: `.ok` with a list users.
     private func list(request: Request) async throws -> [UserListResponse] {
         let users: [User] = try await User.query(on: request.db).all()
         return try users.map { try .init(user: $0) }
     }
 
+    /// Registers a user.
+    ///
+    /// - Returns: `.created` on successful creation.
+    /// - Throws: `Abort(.serviceUnavailable)` if user registration is disabled or
+    ///   `Abort(.conflict)` if a user with the given username already exists.
     private func register(request: Request) async throws -> HTTPStatus {
         guard AppEnvironment.isUserRegistrationEnabled else {
             throw Abort(.serviceUnavailable, reason: "User registration is disabled.")
@@ -33,6 +41,7 @@ internal struct UserController: RouteCollection {
         try UserRegistrationRequest.validate(content: request)
         let registration: UserRegistrationRequest = try request.content.decode(UserRegistrationRequest.self)
 
+        // Check if a user with the given username already exists.
         let existingUser: User? = try await User.query(on: request.db)
             .filter(\.$username == registration.username)
             .first()
@@ -49,6 +58,10 @@ internal struct UserController: RouteCollection {
         return .created
     }
 
+    /// Logs a user in.
+    ///
+    /// - Returns: `.ok` on successful log-in.
+    /// - Throws: `Abort(.unauthorized)` if the credentials are wrong.
     private func login(request: Request) async throws -> UserTokenResponse {
         let credentials: UserLoginRequest = try request.content.decode(UserLoginRequest.self)
 
@@ -68,12 +81,23 @@ internal struct UserController: RouteCollection {
         return .init(token: token)
     }
 
+    /// Logs a user out.
+    ///
+    /// - Returns: `.noContent` on successful logout.
     private func logout(request: Request) async throws -> HTTPStatus {
         let token: UserToken = try request.auth.require(UserToken.self)
         try await token.delete(on: request.db)
         return .noContent
     }
 
+    /// Deletes a user.
+    ///
+    /// The user's tokens are cascaded.
+    ///
+    /// - Returns: `.noContent` on successful deletion.
+    /// - Throws: `Abort(.unauthorized)` when the actor's password is wrong or
+    ///           `Abort(.badRequest)` if no user ID was given or
+    ///           `notFound` if no user exists for the given user ID
     private func delete(request: Request) async throws -> HTTPStatus {
         let actor: User = try request.auth.require(User.self)
 

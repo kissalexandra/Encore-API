@@ -14,6 +14,11 @@ internal struct HealthController: RouteCollection {
         group.on(.GET, "health", use: self.health(request:))
     }
 
+    /// Returns the health status of the app.
+    ///
+    /// The database connection and file system write permissions are tested.
+    ///
+    /// - Returns: `.ok` with the app's health status.
     private func health(request: Request) async throws -> Response {
         let dependencies: [HealthCheckDependency] = [
             await testDatabase(on: request),
@@ -31,6 +36,9 @@ internal struct HealthController: RouteCollection {
         return response
     }
 
+    /// Tests if the database connection is healthy.
+    ///
+    /// - Returns: A HealthCheckDependency object containing whether the database connection is healthy.
     private func testDatabase(on request: Request) async -> HealthCheckDependency {
         do {
             _ = try await Client.query(on: request.db).first()
@@ -40,6 +48,9 @@ internal struct HealthController: RouteCollection {
         }
     }
 
+    /// Tests if the file system is writeable.
+    ///
+    /// - Returns: A HealthCheckDependency object containing whether the file system is writeable.
     private func testFileSystem(on request: Request) -> HealthCheckDependency {
         let probe: URL = URL(
             fileURLWithPath: request.application.artworkBlobStore.root

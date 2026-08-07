@@ -15,6 +15,9 @@ internal struct StatisticsController: RouteCollection {
         userAuthenticatedGroup.on(.GET, "", use: self.statistics(request:))
     }
 
+    /// Returns statistics for this instance.w
+    ///
+    /// - Returns: `.ok` with statistics of this instance.
     private func statistics(request: Request) async throws -> StatisticsResponse {
         let count: Int = try await Artwork.query(on: request.db).count()
         let totalBytes: Int = try await Artwork.query(on: request.db).sum(\.$size) ?? 0
