@@ -16,7 +16,7 @@ internal struct UserController: RouteCollection {
 
         let userAuthenticatedGroup: any RoutesBuilder = group.grouped(UserTokenAuthenticator(), User.guardMiddleware())
         userAuthenticatedGroup.on(.POST, "logout", use: self.logout(request:))
-        userAuthenticatedGroup.on(.POST, "delete", use: self.delete(request:))
+        userAuthenticatedGroup.on(.DELETE, "delete", use: self.delete(request:))
     }
 
     private func register(request: Request) async throws -> HTTPStatus {
