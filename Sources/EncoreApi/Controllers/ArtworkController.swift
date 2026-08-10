@@ -13,19 +13,30 @@ internal struct ArtworkController: RouteCollection {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "artworks").grouped(InstanceMiddleware())
 
         // Discord needs to be able to reach the artworks without authentication.
+        // `HEAD` has to stay unauthenticated and mirror `GET`, because Discord probes the artwork
+        // with a `HEAD` request before it embeds the image. Registering an authenticated `HEAD`
+        // route also shadows Vapor's automatic `HEAD` -> `GET` fallback, so the probe would be
+        // answered with `.unauthorized` instead of the artwork's headers.
         group.on(.GET, ":fileName", use: self.serve(request:))
+        group.on(.HEAD, ":fileName", use: self.exists(request:))
 
         let clientAuthenticatedGroup: any RoutesBuilder = group.grouped(
             ClientTokenAuthenticator(), Client.guardMiddleware())
-        clientAuthenticatedGroup.on(.HEAD, ":fileName", use: self.exists(request:))
         clientAuthenticatedGroup.on(.PUT, ":fileName", body: .collect(maxSize: "128kb"), use: self.upload(request:))
     }
 
     /// Returns whether an artwork exists.
     ///
+    /// Answers with the same headers as ``serve(request:)`` and without a body, as `HEAD` is
+    /// required to be identical to `GET` apart from the body. The response body is dropped by
+    /// Vapor itself, so the declared content length stays the one of the artwork.
+    ///
+    /// The artwork's expiration date is added as a header if the artwork is tracked in the
+    /// database, so a client can decide whether it has to upload the artwork again.
+    ///
     /// The instance identifier is included as a header through a middleware.
     ///
-    /// - Returns: `.ok` with the artwork's expiration date.
+    /// - Returns: `.ok` with the artwork's headers.
     /// - Throws: `Abort(.badRequest)` if the file name is missing or
     ///           `Abort(.notFound)` if the artwork doesn't exist.
     private func exists(request: Request) async throws -> Response {
@@ -34,15 +45,27 @@ internal struct ArtworkController: RouteCollection {
         }
 
         let key: String = self.sanitizeFileName(fileName: fileName)
-        guard let artwork: Artwork = try await Artwork.find(key, on: request.db) else {
+        let path: String = request.application.artworkBlobStore.path(for: key)
+
+        guard let attributes: [FileAttributeKey: Any] = try? FileManager.default.attributesOfItem(atPath: path),
+            let size: Int = attributes[.size] as? Int
+        else {
             throw Abort(.notFound)
         }
 
         let response: Response = .init()
-        response.headers.replaceOrAdd(
-            name: "X-Expires-At",
-            value: artwork.expirationDate.ISO8601Format()
-        )
+        response.headers.replaceOrAdd(name: .contentType, value: "image/jpeg")
+        response.headers.replaceOrAdd(name: .contentLength, value: String(size))
+        // Immutably cache the artwork "forever".
+        // Even if the artwork expires on the instance, the URL would never change, because
+        // the artwork would be uploaded with the same hash again.
+        response.headers.replaceOrAdd(name: "Cache-Control", value: "public, max-age=31536000, immutable")
+        // Guarantee that the client interprets the artwork as a jpeg.
+        response.headers.replaceOrAdd(name: "X-Content-Type-Options", value: "nosniff")
+
+        if let artwork: Artwork = try await Artwork.find(key, on: request.db) {
+            response.headers.replaceOrAdd(name: "X-Expires-At", value: artwork.expirationDate.ISO8601Format())
+        }
 
         return response
     }

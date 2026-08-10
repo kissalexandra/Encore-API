@@ -1,0 +1,12 @@
+**/.DS_Store
+/.dockerignore
+/.env
+/.env.*
+/.gitignore
+/.build/
+/.git/
+/.jj/
+/.swiftpm/
+/Dockerfile
+/docker-compose.yaml
+/Storage/
