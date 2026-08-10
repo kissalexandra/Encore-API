@@ -48,13 +48,13 @@ internal struct ArtworkBlobStore {
         let directory: String = (finalPath as NSString).deletingLastPathComponent
         try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
 
-        let stagingURL: URL = .init(fileURLWithPath: "\(directory)/.\(hash).\(UUID().uuidString)")
-        try data.write(to: stagingURL)
+        let stagingUrl: URL = .init(fileURLWithPath: "\(directory)/.\(hash).\(UUID().uuidString)")
+        try data.write(to: stagingUrl)
 
         do {
-            try FileManager.default.moveItem(at: stagingURL, to: URL(fileURLWithPath: finalPath))
+            try FileManager.default.moveItem(at: stagingUrl, to: URL(fileURLWithPath: finalPath))
         } catch {
-            try? FileManager.default.removeItem(at: stagingURL)
+            try? FileManager.default.removeItem(at: stagingUrl)
         }
     }
 }
