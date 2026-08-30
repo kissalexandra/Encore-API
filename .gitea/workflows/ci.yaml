@@ -1,0 +1,11 @@
+jobs:
+    codestyle:
+        runs-on: 'swift-6.3'
+        steps:
+            - uses: 'actions/checkout@v4'
+            - run: 'swift format --in-place --recursive Sources'
+            - run: 'git diff --exit-code'
+name: 'ci'
+on:
+    pull_request:
+    push:

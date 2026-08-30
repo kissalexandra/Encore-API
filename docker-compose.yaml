@@ -16,7 +16,7 @@ services:
             start_period: '60s'
             test: ['CMD-SHELL', 'curl -fsS http://localhost:8080/api/v1/health > /dev/null']
             timeout: '5s'
-        image: 'kissalexandra/encore-api:1.0.0-beta'
+        image: 'kissalexandra/encore-api:1.0.0'
         networks:
             - 'encore-api'
             - 'postgresql_encore-api'

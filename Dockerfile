@@ -18,6 +18,7 @@ RUN swift build -c release --product EncoreApi \
 
 FROM swift:6.3-noble-slim
 
+# curl is used for the health check.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
