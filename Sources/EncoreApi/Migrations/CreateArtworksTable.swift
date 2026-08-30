@@ -12,7 +12,7 @@ internal struct CreateArtworksTable: AsyncMigration {
         try await database.schema(Artwork.schema)
             .field("hash", .string, .identifier(auto: false))
             .field("expiration_date", .datetime, .required)
-            .field("size", .int, .required)
+            .field("size", .int32, .required)
             .create()
     }
 

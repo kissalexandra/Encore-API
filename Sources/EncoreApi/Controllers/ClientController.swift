@@ -8,14 +8,6 @@
 import Fluent
 import Vapor
 
-// TODO: clean up
-
-// TODO: code documentation
-// TODO: rate limitting
-// TODO: docker image
-// TODO: hosting documentation
-// TODO: tests
-
 internal struct ClientController: RouteCollection {
     internal func boot(routes: any RoutesBuilder) -> Void {
         let group: any RoutesBuilder = routes.grouped("api", "v1", "clients")

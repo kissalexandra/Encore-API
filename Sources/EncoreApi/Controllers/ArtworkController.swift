@@ -145,7 +145,7 @@ internal struct ArtworkController: RouteCollection {
 
         let artwork: Artwork = .init()
         artwork.id = key
-        artwork.size = bytes.count
+        artwork.size = Int32(bytes.count)
         artwork.expirationDate = expirationDate
         try await artwork.save(on: request.db)
 

@@ -17,6 +17,9 @@ internal final class Artwork: Model, @unchecked Sendable {
     @Field(key: "expiration_date")
     internal var expirationDate: Date
 
+    // Using a 64 bit Integer would make aggregating to Decimal necessary for PostgreSQL support
+    // when using query functions like `.sum()`.
+    // Since the artworks are capped at 128kb it doesn't matter.
     @Field(key: "size")
-    internal var size: Int
+    internal var size: Int32
 }

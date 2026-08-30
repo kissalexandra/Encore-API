@@ -15,12 +15,14 @@ internal struct StatisticsController: RouteCollection {
         userAuthenticatedGroup.on(.GET, "", use: self.statistics(request:))
     }
 
-    /// Returns statistics for this instance.w
+    /// Returns statistics for this instance.
     ///
     /// - Returns: `.ok` with statistics of this instance.
     private func statistics(request: Request) async throws -> StatisticsResponse {
         let count: Int = try await Artwork.query(on: request.db).count()
-        let totalBytes: Int = try await Artwork.query(on: request.db).sum(\.$size) ?? 0
+        let totalBytes: Int =
+            try await Artwork.query(on: request.db).aggregate(
+                .sum, \.$size, as: Int?.self) ?? 0
         return .init(count: count, totalBytes: totalBytes)
     }
 }
